@@ -5,16 +5,12 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import com.example.algamoney.api.service.CategoriaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.algamoney.api.event.RecursoCriadoEvent;
 import com.example.algamoney.api.model.Categoria;
@@ -26,6 +22,9 @@ public class CategoriaResource {
 	
 	@Autowired
 	private CategoriaRepository categoriaRepository;
+
+	@Autowired
+	private CategoriaService categoriaService;
 	
 	@Autowired
 	private ApplicationEventPublisher publisher;
@@ -49,6 +48,18 @@ public class CategoriaResource {
 		Categoria categoria = categoriaRepository.findById(codigo).orElse(null);
 		
 		return categoria != null ? ResponseEntity.ok(categoria) : ResponseEntity.notFound().build();
+	}
+
+	@DeleteMapping("/{codigo}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void remover(@PathVariable Long codigo) {
+		categoriaRepository.deleteById(codigo);
+	}
+
+	@PutMapping("/{codigo}")
+	public Categoria atualizar(@Valid @PathVariable Long codigo, @RequestBody Categoria categoria) {
+		Categoria categoriaSalva = categoriaService.atualizar(codigo, categoria);
+		return categoriaRepository.save(categoriaSalva);
 	}
 		
 }
